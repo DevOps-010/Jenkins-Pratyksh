@@ -15,19 +15,23 @@ pipeline {
 
         stage('Install Dependencies') {
             steps {
-                sh 'npm install'
+                sh '''
+                    npm install
+                    npm install -g eslint @typescript-eslint/parser @typescript-eslint/eslint-plugin
+                    npm install --save-dev jest @types/jest
+                '''
             }
         }
 
         stage('Lint') {
             steps {
-                sh 'npm run lint'
+                sh 'npx eslint . --ext .ts'
             }
         }
 
         stage('Test') {
             steps {
-                sh 'npm test'
+                sh 'npx jest'
             }
         }
 
