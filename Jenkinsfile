@@ -39,9 +39,7 @@ pipeline {
 
         stage('Docker Build') {
             steps {
-                script {
-                    docker.build("${DOCKER_IMAGE}:${DOCKER_TAG}")
-                }
+                sh "docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} ."
             }
         }
 
@@ -50,13 +48,10 @@ pipeline {
                 branch 'main'
             }
             steps {
-                script {
-                    // Add your deployment steps here
-                    // For example, pushing to a registry or deploying to a server
-                    // docker.withRegistry('https://your-registry', 'credentials-id') {
-                    //     docker.image("${DOCKER_IMAGE}:${DOCKER_TAG}").push()
-                    // }
-                }
+                sh "echo 'Deploying ${DOCKER_IMAGE}:${DOCKER_TAG}'"
+                // Add your deployment commands here
+                // Example:
+                // sh "docker push ${DOCKER_IMAGE}:${DOCKER_TAG}"
             }
         }
     }
