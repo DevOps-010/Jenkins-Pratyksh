@@ -1,5 +1,4 @@
-import { Request, Response } from 'express';
-import { PrismaClient } from '@prisma/client';
+import { Request, Response, NextFunction } from 'express';
 
 // Mock PrismaClient
 const mockPrismaClient = {
@@ -30,7 +29,7 @@ jest.mock('@prisma/client', () => ({
 // Mock multer
 jest.mock('multer', () => {
   return jest.fn().mockImplementation(() => ({
-    single: jest.fn().mockReturnValue((req: any, res: any, next: any) => {
+    single: jest.fn().mockReturnValue((req: Request, res: Response, next: NextFunction) => {
       next();
     }),
   }));
@@ -41,9 +40,9 @@ process.env.UPLOAD_DIR = './uploads';
 process.env.MAX_FILE_SIZE = '10485760';
 
 describe('Document Routes', () => {
-  let mockRequest: any;
-  let mockResponse: any;
-  let nextFunction: jest.Mock;
+  let mockRequest: Request;
+  let mockResponse: Response;
+  let nextFunction: NextFunction;
 
   beforeEach(() => {
     mockRequest = {
@@ -66,11 +65,13 @@ describe('Document Routes', () => {
         filename: 'test.txt',
         path: './uploads/test.txt',
       },
-    };
+    } as Request;
+
     mockResponse = {
       json: jest.fn(),
       status: jest.fn().mockReturnThis(),
-    };
+    } as unknown as Response;
+
     nextFunction = jest.fn();
 
     // Reset all mocks
@@ -80,6 +81,9 @@ describe('Document Routes', () => {
   describe('Document Operations', () => {
     it('should pass', () => {
       expect(true).toBe(true);
+      expect(mockRequest).toBeDefined();
+      expect(mockResponse).toBeDefined();
+      expect(nextFunction).toBeDefined();
     });
   });
 }); 
