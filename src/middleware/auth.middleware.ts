@@ -4,14 +4,13 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-declare global {
-  namespace Express {
-    interface Request {
-      user?: {
-        userId: string;
-        role: string;
-      };
-    }
+// Use module augmentation instead of namespace
+declare module 'express' {
+  interface Request {
+    user?: {
+      userId: string;
+      role: string;
+    };
   }
 }
 

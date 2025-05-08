@@ -13,13 +13,15 @@ const prisma = new PrismaClient();
 const execAsync = promisify(exec);
 
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, process.env.UPLOAD_DIR || './uploads'),
-  filename: (req, file, cb) => cb(null, `${Date.now()}-${file.originalname}`)
+  destination: (req: Request, file: Express.Multer.File, cb: (error: Error | null, destination: string) => void) => 
+    cb(null, process.env.UPLOAD_DIR || './uploads'),
+  filename: (req: Request, file: Express.Multer.File, cb: (error: Error | null, filename: string) => void) => 
+    cb(null, `${Date.now()}-${file.originalname}`)
 });
 
 const upload = multer({ storage, limits: { fileSize: parseInt(process.env.MAX_FILE_SIZE || '10485760') } });
 
-const createDocument: RequestHandler = async (req, res, next) => {
+const createDocument: RequestHandler = async (req: Request, res: Response, next: NextFunction) => {
   try {
     if (!req.file) throw new AppError('No file uploaded', 400);
     const { title, format } = req.body;
