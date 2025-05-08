@@ -21,11 +21,13 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage, limits: { fileSize: parseInt(process.env.MAX_FILE_SIZE || '10485760') } });
 
-const createDocument: RequestHandler = async (req: Request, res: Response, next: NextFunction) => {
+const createDocument = async (req: Request, res: Response, next: NextFunction) => {
   try {
     if (!req.file) throw new AppError('No file uploaded', 400);
+    if (!req.user) throw new AppError('User not authenticated', 401);
+    
     const { title, format } = req.body;
-    const userId = req.user!.userId;
+    const userId = req.user.userId;
     const document = await prisma.document.create({
       data: { title, content: req.file.buffer.toString(), format, storagePath: req.file.path, userId }
     });
@@ -85,11 +87,13 @@ const getAuditLogs: RequestHandler = async (req, res, next) => {
   }
 };
 
-const updateDocument: RequestHandler = async (req, res, next) => {
+const updateDocument = async (req: Request, res: Response, next: NextFunction) => {
   try {
+    if (!req.user) throw new AppError('User not authenticated', 401);
+    
     const { id } = req.params;
     const { title, content } = req.body;
-    const userId = req.user!.userId;
+    const userId = req.user.userId;
     const document = await prisma.document.update({
       where: { id },
       data: { title, content }
@@ -111,10 +115,12 @@ const updateDocument: RequestHandler = async (req, res, next) => {
   }
 };
 
-const deleteDocument: RequestHandler = async (req, res, next) => {
+const deleteDocument = async (req: Request, res: Response, next: NextFunction) => {
   try {
+    if (!req.user) throw new AppError('User not authenticated', 401);
+    
     const { id } = req.params;
-    const userId = req.user!.userId;
+    const userId = req.user.userId;
     const document = await prisma.document.delete({ where: { id } });
     await prisma.auditLog.create({
       data: { action: 'DELETE', details: `Document ${document.title} deleted`, userId, documentId: id }
